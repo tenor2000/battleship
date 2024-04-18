@@ -1,0 +1,112 @@
+:root {
+    --gameboard-width: 480px;
+    --gameboard-height: 480px;
+    --gameboard-bgcolor: black;
+    --gameboard-color: greenyellow;
+    --accent-color: purple;
+}
+
+body, html {
+    text-align: center;
+    background-color: black;
+    color: greenyellow;
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    justify-content: center;
+    align-items: center;
+    background-image: url("https://backiee.com/static/wpdb/wallpapers/7680x4320/289646.jpg");
+    background-size: cover;
+    background-position: center center;
+}
+
+.opponent-board, .player-board {
+    display: flex;
+    background-color: black;
+    width: var(--gameboard-width);
+    height: var(--gameboard-height);
+    border: 10px solid var(--accent-color);
+    border-radius: 8px;
+    opacity: .95;
+    flex-wrap: wrap;
+}
+
+.play-area {
+    display: flex;
+    flex-direction: column;
+}
+
+.opponent-board, .player-board {
+    display: grid;
+    background-color: var(--gameboard-bgcolor);
+    grid-template-columns: 1fr 10fr; 
+    grid-template-rows: 1fr 10fr;
+    width: var(--gameboard-width);
+    height: var(--gameboard-height);
+}
+
+#x-coord.coordinate-space {
+    display: grid;
+    grid-column: 2 / 2;
+    grid-row: 1 / 2;
+    grid-template-columns: repeat(10, 1fr);
+}
+
+#y-coord.coordinate-space {
+    display: grid;
+    grid-template-rows: repeat(10, 1fr);
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+
+.coordinate-space {
+    justify-content: center;
+    align-items: center;
+    background-color: var(--gameboard-bgcolor);
+    box-sizing: border-box;
+}
+
+.x-coord, .y-coord {
+    background-color: var(--gameboard-bgcolor);
+    box-sizing: border-box;
+    font-size: 20px;
+    color: var(--gameboard-color);
+}
+
+.grid-space{
+    display: grid;
+    grid-template-rows: repeat(10, 1fr);
+    grid-template-columns: repeat(10, 1fr);
+}
+
+button {
+    background-color: var(--accent-color);
+    color: lightblue;
+    padding: 8px;
+    min-width: 100px;
+    border-radius: 8px;
+}
+
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid gray;
+}
+
+.opponent-board > .grid-space >.empty:hover {
+    cursor: pointer;
+    background-color: rgba(180, 180, 180, 0.5);
+}
+
+.hit {
+    background-color: rgba(255, 0, 0, 0.5);
+}
+
+.miss {
+    background-color: rgba(0, 0, 255, 0.5);
+}
+

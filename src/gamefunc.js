@@ -1,8 +1,13 @@
-export function Ship(length) {
+import { addToLog } from './interface';
+
+const xLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+const yLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+export function Ship(shipType, length) {
     return {
         length,
         hits: 0,
         sunk: false,
+        shipType,
         coordinates: [],
         hit() {
             this.hits += 1;
@@ -23,11 +28,12 @@ export function Ship(length) {
     }
 }
 
-export function Gameboard() {
+export function Gameboard(name) {
     return {
         ships: [],
         misses: [],
         hits: [],
+        name,
         addShip(ship, coords) {
             if (ship.length !== coords.length) {
                 return false
@@ -38,7 +44,6 @@ export function Gameboard() {
         },
         receiveAttack(coord) {
             if (this.misses.includes(coord)) {
-                console.log('already logged')
                 return false
             }
 
@@ -47,9 +52,16 @@ export function Gameboard() {
                     this.hits.push(coord);
                     this.ships[i].hit();
                     this.ships[i].isSunk();
-                    return true;
+                    if (this.ships[i].sunk) {
+                        addToLog(`${this.name}: ${xLabels[coord[1]]}${yLabels[coord[0]]} -- ${this.ships[i].shipType} sunk!`);
+                        return true
+                    }
+                    
+                    addToLog(`${this.name}: ${xLabels[coord[1]]}${yLabels[coord[0]]} -- hit!`);
+                    return true
                 }
             }
+            addToLog(`${this.name}: ${xLabels[coord[1]]}${yLabels[coord[0]]} -- miss!`)
             this.misses.push(coord);
             return false
         },
@@ -64,10 +76,10 @@ export function Gameboard() {
     }
 }
 
-export function Player(type) {
+export function Player(opponentName, type) {
     return {
         type,
-        gameboard: Gameboard(),
+        gameboard: Gameboard(opponentName),
         renderGrid(container, boardType) {
             container.innerHTML = '';
             for (let i = 0; i < 100; i++) {
@@ -92,10 +104,11 @@ export function Player(type) {
                 
                 container.appendChild(cell);
             }
+
         },
         buildEvent(cell, index) {
+            const coord = [Math.floor(index / 10), index % 10];
             cell.addEventListener('click', () => {
-                const coord = [Math.floor(index / 10), index % 10];
                 if (this.gameboard.receiveAttack(coord)) {
                     cell.classList.add('hit');
                     cell.classList.remove('empty');
@@ -107,7 +120,6 @@ export function Player(type) {
                 }
                 const event = new Event('Turn Taken');
                 document.dispatchEvent(event);
-                console.log('turn taken')
             })
         }
     }

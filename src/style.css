@@ -14,8 +14,8 @@ body, html {
 
 #container {
     display: flex;
-    flex-direction: column;
     padding: 30px;
+    gap: 20px;
     justify-content: center;
     align-items: center;
     background-image: url("https://backiee.com/static/wpdb/wallpapers/7680x4320/289646.jpg");
@@ -24,28 +24,41 @@ body, html {
 }
 
 .opponent-board, .player-board {
-    display: flex;
+    display: grid;
     background-color: black;
-    width: var(--gameboard-width);
-    height: var(--gameboard-height);
     border: 10px solid var(--accent-color);
     border-radius: 8px;
-    opacity: .95;
-    flex-wrap: wrap;
-}
-
-.play-area {
-    display: flex;
-    flex-direction: column;
-}
-
-.opponent-board, .player-board {
-    display: grid;
+    opacity: .8;
     background-color: var(--gameboard-bgcolor);
     grid-template-columns: 1fr 10fr; 
     grid-template-rows: 1fr 10fr;
     width: var(--gameboard-width);
     height: var(--gameboard-height);
+}
+
+.play-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.log-box {
+    display: flex;
+    flex-direction: column;
+    border: 10px solid var(--accent-color);
+    border-radius: 8px;
+    opacity: .8;
+    background-color: var(--gameboard-bgcolor);
+    width: calc(var(--gameboard-width) / 2);
+    height: var(--gameboard-height);
+    overflow-y: scroll;
+}
+
+.log {
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    padding: 5px;
 }
 
 #x-coord.coordinate-space {

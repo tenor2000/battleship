@@ -30,8 +30,26 @@ export const createGrid = (container) => {
     container.appendChild(yCoordSpace);
     container.appendChild(gridSpace);
 
+    for (let i = 0; i < 100; i++) {
+        const coord = [Math.floor(i / 10), i % 10];
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        gridSpace.appendChild(cell);
+    }
 };
 
-export const renderBoard = (boardObj) => {
-    const board = document.createElement('div');
+export const createLog = (container) => {
+    const logBox = document.createElement('div');
+    logBox.className = 'log-box';
+    container.appendChild(logBox);
+}
+
+export const addToLog = (text) => {
+    const logEntry = document.createElement('div');
+    const logBox = document.querySelector('.log-box');
+    logEntry.className = 'log';
+    logEntry.innerHTML = text;
+    logBox.appendChild(logEntry);
+
+    logBox.scrollTop = logBox.scrollHeight;
 }

@@ -31,7 +31,6 @@ export const createGrid = (container) => {
     container.appendChild(gridSpace);
 
     for (let i = 0; i < 100; i++) {
-        const coord = [Math.floor(i / 10), i % 10];
         const cell = document.createElement('div');
         cell.className = 'cell';
         gridSpace.appendChild(cell);
@@ -45,11 +44,19 @@ export const createLog = (container) => {
 }
 
 export const addToLog = (text) => {
-    const logEntry = document.createElement('div');
+    const logEntry = document.createElement('text');
     const logBox = document.querySelector('.log-box');
     logEntry.className = 'log';
     logEntry.innerHTML = text;
     logBox.appendChild(logEntry);
 
     logBox.scrollTop = logBox.scrollHeight;
+}
+
+export const victory = (victor, loser) => {
+    addToLog(`GAME OVER: ${victor.name} Victory!`)
+    const playerGridSpace = document.querySelector('.player-board .grid-space');
+    const opponentGridSpace = document.querySelector('.opponent-board .grid-space');
+    loser.renderGrid(opponentGridSpace, 'show', true);
+    victor.renderGrid(playerGridSpace, 'show', true);
 }

@@ -1,5 +1,5 @@
-import { Ship, Player} from './gamefunc.js';
-import { createGrid, createLog, addToLog } from './interface.js';
+import { Player, compAttack } from './gamefunc.js';
+import { createGrid, createLog, addToLog, victory } from './interface.js';
 import './style.css';
 
 
@@ -23,70 +23,82 @@ function setupGame() {
   createGrid(playerBoard);
 }
 
-function setupPlayers(p1, p2) {
-  // player set WIP
-  const battleship1 = Ship('battleship', 4);
-  const destroyer1 = Ship('destroyer', 3);
-  const carrier1 = Ship('carrier', 5);
-  const submarine1 = Ship('submarine', 3);
-  const patrolboat1 = Ship('patrol boat', 2);
-
-  p1.gameboard.addShip(destroyer1, [[9,5], [9,6], [9,7]]);
-  p1.gameboard.addShip(carrier1, [[2,2], [2,3], [2,4], [2,5], [2,6]]);
-  p1.gameboard.addShip(patrolboat1, [[1,8], [2,8]]);
-  p1.gameboard.addShip(submarine1, [[5,9], [5,8], [5,7]]);
-  p1.gameboard.addShip(battleship1, [[7,4], [6,4], [5,4], [4,4]]);
-
-  const battleship2 = Ship('battleship', 4);
-  const destroyer2 = Ship('destroyer', 3);
-  const carrier2 = Ship('carrier', 5);
-  const submarine2 = Ship('submarine', 3);
-  const patrolboat2 = Ship('patrol boat', 2);
-
-  p2.gameboard.addShip(destroyer2, [[0,0], [0,1], [0,2]]);
-  p2.gameboard.addShip(carrier2, [[2,2], [2,3], [2,4], [2,5], [2,6]]);
-  p2.gameboard.addShip(patrolboat2, [[5,1], [5,2]]);
-  p2.gameboard.addShip(submarine2, [[7,0], [7,1], [7,2]]);
-  p2.gameboard.addShip(battleship2, [[7,6], [6,6], [5,6], [4,6]]);
-}
-
 setupGame()
 createLog(container);
 
 const playerGridSpace = document.querySelector('.player-board .grid-space');
 const opponentGridSpace = document.querySelector('.opponent-board .grid-space');
 
-// Opponent name used for logs
-const playerOne = Player('Player 2', 'human');
-const playerTwo = Player('Player 1', 'comp');
 
-setupPlayers(playerOne, playerTwo);
-
-// Turn Functions
-function playerOneTurn() {
-  playerOne.renderGrid(playerGridSpace, 'player');
-  playerTwo.renderGrid(opponentGridSpace, 'opponent');
-} 
-
-function playerTwoTurn() {
-  playerOne.renderGrid(opponentGridSpace, 'opponent')
-  playerTwo.renderGrid(playerGridSpace, 'player');
+function playerTurn(current, opponent) {
+  current.renderGrid(playerGridSpace, 'show');
+  opponent.renderGrid(opponentGridSpace);
 }
 
-function runGame() {
-  
+function computerTurn(computer, playerOne) {
+  playerOne.renderGrid(opponentGridSpace, true)
+  computer.renderGrid(playerGridSpace);
+  setTimeout(() => {compAttack(playerOne)}, 500)
+}
+
+// Turn Functions
+function runHotSeatGame() {
+
+  // Opponent names used for logging
+  const playerOne = Player('You', 'Player 2', 'human');
+  const playerTwo = Player('Them', 'Player 1', 'human');
+
+  playerOne.setUpShips();
+  playerTwo.setUpShips();
+
   let turn = 0;
   document.addEventListener('Turn Taken', () => {
     turn = (turn+1) % 2;
+    if (playerOne.gameboard.checkForAllSunk()) {
+      return victory(computerAI, playerOne);
+    }
+    if (playerTwo.gameboard.checkForAllSunk()) {
+      return victory(playerOne, computerAI)
+    }
     if (turn === 0) {
-      playerOneTurn();
+      playerTurn(playerOne, playerTwo);
     } else {
-      playerTwoTurn();}
+      playerTurn(playerTwo, playerOne);
+    }
   })
 
   addToLog('Lets begin!')
-  playerOneTurn()
+  playerTurn(playerOne, playerTwo)
 }
 
+function runVsCompGame() {
+    // Opponent name used for logging as the player is clicking on the opponent's board
+    const playerOne = Player('Player 1', 'Computer');
+    const computerAI = Player('Computer', 'Player 1');
 
-// runGame()
+    playerOne.setUpShips();
+    computerAI.setUpShips();
+
+    let turn = 0;
+    document.addEventListener('Turn Taken', () => {
+      turn = (turn+1) % 2;
+      if (playerOne.gameboard.checkForAllSunk()) {
+        return victory(computerAI, playerOne);
+      }
+      if (computerAI.gameboard.checkForAllSunk()) {
+        return victory(playerOne, computerAI)
+      }
+
+      if (turn === 0) {
+        playerTurn(playerOne, computerAI);
+      } else {
+        computerTurn(computerAI, playerOne);
+      }
+    })
+
+  addToLog('Lets begin!')
+  playerTurn(playerOne, computerAI)
+}
+
+// runHotSeatGame();
+runVsCompGame();

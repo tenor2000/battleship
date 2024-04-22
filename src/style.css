@@ -4,6 +4,7 @@
     --gameboard-bgcolor: black;
     --gameboard-color: greenyellow;
     --accent-color: purple;
+    --general-opacity: .8;
 }
 
 body, html {
@@ -28,7 +29,7 @@ body, html {
     background-color: black;
     border: 10px solid var(--accent-color);
     border-radius: 8px;
-    opacity: .8;
+    opacity: var(--general-opacity);
     background-color: var(--gameboard-bgcolor);
     grid-template-columns: 1fr 10fr; 
     grid-template-rows: 1fr 10fr;
@@ -36,22 +37,36 @@ body, html {
     height: var(--gameboard-height);
 }
 
-.play-area {
+.play-area, .admin-area {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.log-box {
+.top-admin-box, .bottom-admin-box {
     display: flex;
     flex-direction: column;
     border: 10px solid var(--accent-color);
     border-radius: 8px;
-    opacity: .8;
+    opacity: var(--general-opacity);
     background-color: var(--gameboard-bgcolor);
     width: calc(var(--gameboard-width) / 2);
     height: var(--gameboard-height);
     overflow-y: scroll;
+}
+
+.control-buttons-container, .ship-container {
+    opacity: .8;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+    flex-direction: column;
+}
+
+.control-buttons {
+    width: 80%;
 }
 
 .log {

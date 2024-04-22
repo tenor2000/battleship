@@ -1,5 +1,5 @@
 import { Player, compAttack } from './gamefunc.js';
-import { createGrid, createLog, addToLog, victory } from './interface.js';
+import { interfaceDisplay } from './interface.js';
 import './style.css';
 
 
@@ -8,23 +8,13 @@ container.id = 'container';
 document.body.appendChild(container);
 
 // Driver code
-function setupGame() {
-  const playArea = document.createElement('div');
-  playArea.className = 'play-area';
-  const playerBoard = document.createElement('div');
-  playerBoard.className = 'player-board';
-  const opponentBoard = document.createElement('div');
-  opponentBoard.className = 'opponent-board';
-  playArea.appendChild(opponentBoard);
-  playArea.appendChild(playerBoard);
-  container.appendChild(playArea);
 
-  createGrid(opponentBoard);
-  createGrid(playerBoard);
-}
-
-setupGame()
-createLog(container);
+const display = interfaceDisplay(container);
+display.homeDisplay();
+const playerBoard = document.querySelector('.player-board');
+const opponentBoard = document.querySelector('.opponent-board');
+display.createGrid(playerBoard);
+display.createGrid(opponentBoard);
 
 const playerGridSpace = document.querySelector('.player-board .grid-space');
 const opponentGridSpace = document.querySelector('.opponent-board .grid-space');
@@ -36,17 +26,16 @@ function playerTurn(current, opponent) {
 }
 
 function computerTurn(computer, playerOne) {
-  playerOne.renderGrid(opponentGridSpace, true)
-  computer.renderGrid(playerGridSpace);
+  playerOne.renderGrid(playerGridSpace, 'show', true)
+  computer.renderGrid(opponentGridSpace, true);
   setTimeout(() => {compAttack(playerOne)}, 500)
 }
 
 // Turn Functions
-function runHotSeatGame() {
-
+function runHotSeatGame(screen) {
   // Opponent names used for logging
-  const playerOne = Player('You', 'Player 2', 'human');
-  const playerTwo = Player('Them', 'Player 1', 'human');
+  const playerOne = Player('Player 1', 'Player 2', screen);
+  const playerTwo = Player('Player 2', 'Player 1', screen);
 
   playerOne.setUpShips();
   playerTwo.setUpShips();
@@ -55,26 +44,26 @@ function runHotSeatGame() {
   document.addEventListener('Turn Taken', () => {
     turn = (turn+1) % 2;
     if (playerOne.gameboard.checkForAllSunk()) {
-      return victory(computerAI, playerOne);
+      return screen.victoryDisplay(playerTwo, playerOne);
     }
     if (playerTwo.gameboard.checkForAllSunk()) {
-      return victory(playerOne, computerAI)
+      return screen.victoryDisplay(playerOne, playerTwo)
     }
     if (turn === 0) {
       playerTurn(playerOne, playerTwo);
     } else {
       playerTurn(playerTwo, playerOne);
     }
+    return true
   })
 
-  addToLog('Lets begin!')
   playerTurn(playerOne, playerTwo)
 }
 
-function runVsCompGame() {
+function runVsCompGame(screen) {
     // Opponent name used for logging as the player is clicking on the opponent's board
-    const playerOne = Player('Player 1', 'Computer');
-    const computerAI = Player('Computer', 'Player 1');
+    const playerOne = Player('Player 1', 'Computer', screen);
+    const computerAI = Player('Computer', 'Player 1', screen);
 
     playerOne.setUpShips();
     computerAI.setUpShips();
@@ -83,10 +72,10 @@ function runVsCompGame() {
     document.addEventListener('Turn Taken', () => {
       turn = (turn+1) % 2;
       if (playerOne.gameboard.checkForAllSunk()) {
-        return victory(computerAI, playerOne);
+        return screen.victoryDisplay(computerAI, playerOne);
       }
       if (computerAI.gameboard.checkForAllSunk()) {
-        return victory(playerOne, computerAI)
+        return screen.victoryDisplay(playerOne, computerAI)
       }
 
       if (turn === 0) {
@@ -94,11 +83,19 @@ function runVsCompGame() {
       } else {
         computerTurn(computerAI, playerOne);
       }
+      return true
     })
 
-  addToLog('Lets begin!')
   playerTurn(playerOne, computerAI)
 }
 
-// runHotSeatGame();
-runVsCompGame();
+document.addEventListener('New Game', (event) => {
+  const gametype = event.detail;
+
+  display.gameDisplay(display);
+  if (gametype === 'hotseat') {
+    runHotSeatGame(display);
+  } else {
+    runVsCompGame(display);
+  }
+})

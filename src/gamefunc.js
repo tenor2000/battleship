@@ -1,5 +1,3 @@
-import { addToLog } from './interface';
-
 export function Ship(shipType, length) {
     return {
         length,
@@ -64,12 +62,13 @@ export function Ship(shipType, length) {
     }
 }
 
-export function Gameboard(name) {
+export function Gameboard(opponentName, display) {
+    // Opponent name used for logging as the opponent is clicking on the player's board
     return {
         ships: [],
         misses: [],
         hits: [],
-        name,
+        opponentName,
         addShip(ship, coords) {
             if (ship.length !== coords.length) {
                 return false
@@ -92,15 +91,15 @@ export function Gameboard(name) {
                     this.ships[i].hit();
                     this.ships[i].isSunk();
                     if (this.ships[i].sunk) {
-                        addToLog(`${this.name}: ${xLabels[coord[1]]}${yLabels[coord[0]]} -- ${this.ships[i].shipType} sunk!`);
+                        display.addToLog(`${this.opponentName}: '${xLabels[coord[1]]}${yLabels[coord[0]]}' -- ${this.ships[i].shipType} sunk!`);
                         return true
                     }
                     
-                    addToLog(`${this.name}: ${xLabels[coord[1]]}${yLabels[coord[0]]} -- hit!`);
+                    display.addToLog(`${this.opponentName}: '${xLabels[coord[1]]}${yLabels[coord[0]]}' -- HIT!`);
                     return true
                 }
             }
-            addToLog(`${this.name}: ${xLabels[coord[1]]}${yLabels[coord[0]]} -- miss!`)
+            display.addToLog(`${this.opponentName}: '${xLabels[coord[1]]}${yLabels[coord[0]]}' -- miss!`)
             this.misses.push(coord);
             return false
         },
@@ -115,11 +114,10 @@ export function Gameboard(name) {
     }
 }
 
-export function Player(name, opponentName, type) {
+export function Player(name, opponentName, display) {
     return {
-        type,
         name,
-        gameboard: Gameboard(opponentName),
+        gameboard: Gameboard(opponentName, display),
         renderGrid(container, info='hidden', disableClick=false) {
             container.innerHTML = '';
 
@@ -177,18 +175,20 @@ export function Player(name, opponentName, type) {
         
             // WIP
             if (random) {
-              const usedCoords = [];
-              shipArray.forEach(ship => {
+                const usedCoords = [];
+                shipArray.forEach(ship => {
                 const shipCoords = ship.genRandCoords(usedCoords);
                 usedCoords.push(...shipCoords);
                 this.gameboard.addShip(ship, shipCoords);
               })
             } else {
-              this.gameboard.addShip(destroyer, [[9,5], [9,6], [9,7]]);
-              this.gameboard.addShip(carrier, [[2,2], [2,3], [2,4], [2,5], [2,6]]);
-              this.gameboard.addShip(patrolboat, [[1,8], [2,8]]);
-              this.gameboard.addShip(submarine, [[5,9], [5,8], [5,7]]);
-              this.gameboard.addShip(battleship, [[7,4], [6,4], [5,4], [4,4]]);
+                display.setUpShipDisplay(shipArray);
+                this.gameboard.addEventListener('drop', () => false)
+                this.gameboard.addShip(destroyer, [[9,5], [9,6], [9,7]]);
+                this.gameboard.addShip(carrier, [[2,2], [2,3], [2,4], [2,5], [2,6]]);
+                this.gameboard.addShip(patrolboat, [[1,8], [2,8]]);
+                this.gameboard.addShip(submarine, [[5,9], [5,8], [5,7]]);
+                this.gameboard.addShip(battleship, [[7,4], [6,4], [5,4], [4,4]]);
             }
           }
     }
@@ -196,17 +196,18 @@ export function Player(name, opponentName, type) {
 
 
 
-export function compAttack(opponent) {
+export function compAttack(opponent, difficulty=0) {
     // Computer makes random attack
     const coordMatches = (coord1, coord2) => coord1[0] === coord2[0] && coord1[1] === coord2[1];
   
     const isCoordInArrays = (coord, misses, hits) => misses.some(c => coordMatches(c, coord)) || hits.some(c => coordMatches(c, coord));
-  
     let randomCoord;
-    do {
-        randomCoord = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)];
-    } while (isCoordInArrays(randomCoord, opponent.gameboard.misses, opponent.gameboard.hits));
-  
+    if (difficulty === 0) {
+        
+        do {
+            randomCoord = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)];
+        } while (isCoordInArrays(randomCoord, opponent.gameboard.misses, opponent.gameboard.hits));
+    }
     opponent.gameboard.receiveAttack(randomCoord);
     const event = new Event('Turn Taken');
     document.dispatchEvent(event);
